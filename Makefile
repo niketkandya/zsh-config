@@ -1,4 +1,4 @@
-TARGETS = $(HOME)/.zshrc $(HOME)/.oh-my-zsh $(HOME)/.p10k.zsh
+TARGETS = $(HOME)/.zshrc $(HOME)/.oh-my-zsh $(HOME)/.p10k.zsh $(HOME)/.zshenv
 SHELL = /bin/bash
 CWD = $(shell pwd)
 

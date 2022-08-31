@@ -8,8 +8,8 @@ export ZSH=$HOME/.zsh
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-#ZSH_THEME="powerlevel10k/powerlevel10k"
-ZSH_THEME="gentoo"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+#ZSH_THEME="gentoo"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -163,13 +163,8 @@ alias tmuxc="vim ~/.tmux.conf"
 alias zshrc="vim ~/.zshrc"
 alias tigrc="vim ~/.tigrc"
 alias vimrc="vim ~/.vimrc"
-
-alias now='date +"%Y-%m-%dT%H:%M:%S"'
-
-run() {
-  echo "$(now) CMD: $*"
-  $*
-}
+alias tcurr="tmux display-message -pt $TMUX_PANE '#P'"
+alias csd="cscope -d"
 
 mkcd() {
   run mkdir -p ${@[-1]}
@@ -187,9 +182,110 @@ mkcpd() {
   run cd ${@[-1]}
 }
 
+#Cscope
+
+codegen() {
+    local prefix=${1:-def}
+    local src=${2:-.}
+    local cdir=$src/cscope
+
+    run mkdir -p $cdir
+    run rm -rf $cdir/cscope.$prefix*out(N)
+    run cscope -q -k -b -i $cdir/cscope.$prefix.files -f $cdir/cscope.$prefix.out
+    echo "Done!"
+}
+
+code() {
+    local prefix=${1:-def}
+    local src=${2:-.}
+    local cdir=$src/cscope
+
+    run cd $(git root)
+    CSCOPE_DB=$cdir/cscope.$prefix.out
+    export CSCOPE_DB
+    run cscope -d -f $CSCOPE_DB
+}
+
+#MISC
+curr () {
+        run rootih $(gets)
+}
+
+currc () {
+        run rootc $(gets) $@
+}
+
+gets () {
+        local num=${1:-$(tcurr)}
+        local filename=$(hostsfile)
+        local host=$(head -n $num $filename | tail -n 1)
+        echo $host
+}
+
+user_and_scripts() {
+        local host=$1
+        local user=${2:-root}
+        run my_scp $host $HOME/tmp/scripts /data/tmp/.niketkandya/
+#        run my_ssh -t $host bash --init-file /data/tmp/.niketkandya/scripts/bashrc_niketkandya
+        run my_ssh_cmd ssh -t $SSHOPTS $user@$host bash --init-file /data/tmp/.niketkandya/scripts/bashrc_niketkandya
+}
+
+useri () {
+        local num=$1
+        local user=$2
+        local host=$(gets $num)
+        run user_and_scripts $host $user
+}
+
+userih () {
+        local host=$1
+        local user=$2
+        run user_and_scripts $host $user
+}
+
+rooti () {
+        local num=$1
+        run useri $num
+}
+
+rootih () {
+        local host=$1
+        run userih $host
+}
+
+root_cmd () {
+        local host=$1
+        shift
+        run my_ssh $host $@
+}
+
+rootc() {
+        local num=$1
+        local host=$(gets $num)
+        shift
+        run root_cmd $host $@
+}
+
+rootch () {
+        local host=$1
+        shift
+        run root_cmd $host $@
+}
+
+compare_commits() {
+    local sha1="$1"
+    local sha2="$2"
+    local global="$3"
+    local reverse=$4
+    colordiff <(git show $global $reverse --format="%H" $1) <(git show $global --format="%H" $2) | grep -v -E 'git|@@'
+}
+
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
-source ~/bin/googlerc
+source /usr/share/doc/fzf/examples/key-bindings.zsh
+source ~/.googlerc
+
+source <(kubectl completion zsh)
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
