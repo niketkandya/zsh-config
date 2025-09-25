@@ -69,7 +69,7 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(fzf git-prompt git git-flow mosh lol zsh-syntax-highlighting python pip osx vim shrink-path)
+plugins=(fzf git-prompt git git-flow mosh lol zsh-syntax-highlighting python pip vim shrink-path)
 
 source /etc/profile
 source $ZSH/oh-my-zsh.sh
@@ -143,6 +143,8 @@ alias nog="nogit"
 
 PATH=~/bin:/usr/local/bin:/usr/local/sbin:$PATH
 PATH=$HOME/gbin:$PATH
+PATH=/Users/niketkandya/.cargo/bin:$PATH
+PATH=/Users/niketkandya/Library/Python/3.9/bin:$PATH
 
 #ALIASES
 
